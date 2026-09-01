@@ -6,6 +6,10 @@ import {
   WarningCircle, X, XCircle,
 } from "@phosphor-icons/react";
 import { CHANNEL_LABELS, INITIAL_TICKETS, PRODUCT_LABELS } from "./demo-data.js";
+import {
+  groupedFcaProducts,
+  PRODUCT_TICKET_PREFIXES,
+} from "../shared/fca-product-registry.js";
 
 const outcome = {
   block: { label: "Block", tone: "danger", Icon: XCircle },
@@ -20,8 +24,7 @@ function titleFromPromotion(value) {
   return clean.length > 48 ? `${clean.slice(0, 48).trim()}…` : clean;
 }
 function nextTicketId(product) {
-  const prefixes = { investments: "INV", consumer_credit: "CC", mortgages: "MORT" };
-  return `${prefixes[product]}-2026-${Math.floor(4200 + Math.random() * 600)}`;
+  return `${PRODUCT_TICKET_PREFIXES[product] ?? "FCA"}-2026-${Math.floor(4200 + Math.random() * 600)}`;
 }
 async function streamReview(input, onStage) {
   const response = await fetch("/api/review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
@@ -156,12 +159,12 @@ function CaseWorkspace({ ticket, onEdit, onToast }) {
     <div className="case-toolbar"><span className="case-id">{ticket.id}</span><StatusPill tone={workflowTone[ticket.workflowStatus]}>{ticket.workflowStatus}</StatusPill><span>Submitted: {ticket.submitted} · by {ticket.owner}</span><div className="actions-wrap"><button className="secondary-button" onClick={() => setActionsOpen((value) => !value)}>More actions <CaretDown size={16} /></button>{actionsOpen && <div className="actions-menu"><button onClick={() => { setActionsOpen(false); onEdit(ticket); }}><SlidersHorizontal size={16} /> Edit & re-run</button><button onClick={() => { navigator.clipboard?.writeText(ticket.id); setActionsOpen(false); onToast("Case ID copied."); }}><Copy size={16} /> Copy case ID</button></div>}</div></div>
     <div className="workspace-scroll">
       <h2 className="case-title">{ticket.title}</h2>
-      <section className="case-overview"><div><span className="eyebrow">Submitted copy</span><p>{ticket.promotion}</p></div><div className="context-panel"><span className="eyebrow">Applicability context</span><dl><dt>Product</dt><dd>{PRODUCT_LABELS[ticket.product]}</dd><dt>Channel</dt><dd>{CHANNEL_LABELS[ticket.channel]}</dd><dt>Audience</dt><dd>UK retail</dd><dt>Jurisdiction</dt><dd>United Kingdom / FCA</dd><dt>Sourcebook</dt><dd>{result.applicability.principalSourcebooks.join(", ")}</dd></dl></div><div><span className="eyebrow">Advisory recommendation</span><RecommendationCard recommendation={result.recommendation} /></div></section>
+      <section className="case-overview"><div><span className="eyebrow">Submitted copy</span><p>{ticket.promotion}</p></div><div className="context-panel"><span className="eyebrow">Applicability context</span><dl><dt>Product</dt><dd>{PRODUCT_LABELS[ticket.product]}</dd><dt>Channel</dt><dd>{CHANNEL_LABELS[ticket.channel]}</dd><dt>Audience</dt><dd>UK retail</dd><dt>Jurisdiction</dt><dd>United Kingdom / FCA</dd><dt>Sourcebooks</dt><dd>{result.applicability.principalSourcebooks.join(", ")}</dd></dl></div><div><span className="eyebrow">Advisory recommendation</span><RecommendationCard recommendation={result.recommendation} /></div></section>
       {result.applicability.contextStatus === "possible_mismatch" && <div className="context-warning"><WarningCircle size={19} /> {result.applicability.contextExplanation}</div>}
       {result.findings?.map((finding,index) => <Finding key={finding.id} finding={finding} index={index} onToast={onToast} />)}
       <AuditTrace result={result} />
       <div className="reviewer-banner"><Info size={24} weight="fill" /><div><strong>Reviewer decision required.</strong> The advisory recommendation is not a decision. You must make and record the final decision for this promotion.</div></div>
-      <p className="scope-note">AI-assisted text review for selected UK retail product journeys. The demo does not verify visual prominence or external substantiation.</p>
+      <p className="scope-note">AI-assisted text review across FCA-regulated UK retail product families. The demo does not verify visual prominence or external substantiation.</p>
     </div>
   </main>;
 }
@@ -173,7 +176,7 @@ function SubmissionModal({ ticket, onClose, onSubmit }) {
   const valid = promotion.trim().length >= 12;
   return <div className="modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="submission-title">
     <div className="modal-header"><div><span className="modal-kicker"><Sparkle size={16} weight="fill" /> AI-assisted review</span><h2 id="submission-title">{ticket ? "Edit promotion" : "New promotion"}</h2></div><button className="icon-button" onClick={onClose} aria-label="Close"><X size={21} /></button></div>
-    <div className="modal-body"><label className="input-group"><span>Promotion copy</span><textarea value={promotion} onChange={(event) => setPromotion(event.target.value)} rows={7} placeholder="Paste or type the promotional copy…" autoFocus /><small>{promotion.length} / 5,000 characters · Text only</small></label><div className="form-row"><label className="input-group"><span>Product</span><select value={product} onChange={(event) => setProduct(event.target.value)}>{Object.entries(PRODUCT_LABELS).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label><label className="input-group"><span>Channel</span><select value={channel} onChange={(event) => setChannel(event.target.value)}>{Object.entries(CHANNEL_LABELS).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label></div><div className="fixed-context"><ShieldCheck size={20} weight="fill" /><div><strong>Fixed demo context</strong><span>United Kingdom / FCA · Retail audience · Firm’s own promotion</span></div></div></div>
+    <div className="modal-body"><label className="input-group"><span>Promotion copy</span><textarea value={promotion} onChange={(event) => setPromotion(event.target.value)} rows={7} placeholder="Paste or type the promotional copy…" autoFocus /><small>{promotion.length} / 5,000 characters · Text only</small></label><div className="form-row"><label className="input-group"><span>Product</span><select value={product} onChange={(event) => setProduct(event.target.value)}>{groupedFcaProducts().map((group) => <optgroup key={group.id} label={group.label}>{group.products.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}</optgroup>)}</select></label><label className="input-group"><span>Channel</span><select value={channel} onChange={(event) => setChannel(event.target.value)}>{Object.entries(CHANNEL_LABELS).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label></div><div className="fixed-context"><ShieldCheck size={20} weight="fill" /><div><strong>Fixed demo context</strong><span>United Kingdom / FCA · Retail audience · Firm’s own promotion</span></div></div></div>
     <div className="modal-footer"><button className="secondary-button" onClick={onClose}>Cancel</button><button className="primary-button" disabled={!valid} onClick={() => onSubmit({ promotion: promotion.trim(), product, channel })}><Sparkle size={17} weight="fill" /> Run grounded review</button></div>
   </section></div>;
 }
@@ -212,3 +215,4 @@ export function App() {
   };
   return <div className="app-shell"><TopBar onInfo={showToast} /><div className="app-body"><QueuePanel tickets={visibleTickets} selectedId={selectedId} onSelect={setSelectedId} onNew={openNew} sortNewest={sortNewest} setSortNewest={setSortNewest} filter={filter} setFilter={setFilter} /><CaseWorkspace ticket={selected} onEdit={openEdit} onToast={showToast} /></div>{modalOpen && <SubmissionModal ticket={modalTicket} onClose={() => setModalOpen(false)} onSubmit={submit} />}{toast && <div className="toast"><Info size={18} weight="fill" /> {toast}</div>}</div>;
 }
+

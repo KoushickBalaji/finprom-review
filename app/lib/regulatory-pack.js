@@ -1,17 +1,19 @@
+import {
+  PRODUCT_SOURCEBOOKS,
+  buildApplicabilityRoute,
+  filterRecordsForRoute,
+} from "./applicability-router.js";
+
 export const SNAPSHOT = {
   id: "fca-demo-pack-2026-08-30",
   asOf: "30 August 2026",
-  scope: "Selected FCA provisions for the three evaluated retail journeys",
+  scope: "Selected FCA provisions for the three stored evaluation journeys",
   corpusMode: "demo-pack",
   corpusNotice:
-    "The public demo uses a limited regulatory pack. Full-Handbook ingestion is implemented as an adapter but requires FCA API access and appropriate licensing before public deployment.",
+    "The live demo still uses a limited regulatory pack. The authenticated full Handbook has been downloaded, normalized and chunked locally; its derived retrieval indexes are the next corpus step.",
 };
 
-export const PRODUCT_SOURCEBOOKS = {
-  investments: ["COBS"],
-  consumer_credit: ["CONC"],
-  mortgages: ["MCOB"],
-};
+export { PRODUCT_SOURCEBOOKS };
 
 export const RULES = [
   {
@@ -160,10 +162,19 @@ export const RULES = [
 export const RULE_BY_ID = new Map(RULES.map((rule) => [rule.id, rule]));
 
 export function rulesForProduct(product) {
-  const preferred = PRODUCT_SOURCEBOOKS[product] ?? [];
-  return RULES.map((rule) => ({
+  const route = buildApplicabilityRoute({
+    product,
+    channel: "website",
+    audience: "uk_retail",
+    jurisdiction: "UK_FCA",
+  });
+  const preferred = route.principalSourcebooks;
+  return filterRecordsForRoute(RULES, route).map((rule) => ({
     ...rule,
     applicabilityBoost: preferred.includes(rule.sourcebook) ? 1 : 0,
+    scopeLanes: route.lanes
+      .filter((lane) => lane.selectors.some((selector) => selector.sourcebook === rule.sourcebook))
+      .map((lane) => lane.id),
   }));
 }
 

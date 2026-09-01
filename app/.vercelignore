@@ -4,4 +4,10 @@ dist
 .vercel-cli
 .vercel
 design-qa.md
+corpus/raw
+corpus/snapshots
+corpus/chunks
+corpus/index
+corpus/deploy
+corpus/evals
 

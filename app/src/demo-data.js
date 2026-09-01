@@ -1,4 +1,5 @@
 import { RULES, SNAPSHOT } from "../lib/regulatory-pack.js";
+export { PRODUCT_LABELS } from "../shared/fca-product-registry.js";
 
 const citations = (...ids) => RULES.filter((rule) => ids.includes(rule.id)).map((rule) => ({
   id: rule.id, heading: rule.heading, provisionType: rule.provisionType,
@@ -117,6 +118,5 @@ export const INITIAL_TICKETS = [
   },
 ];
 
-export const PRODUCT_LABELS = { investments: "Investments", consumer_credit: "Consumer credit", mortgages: "Mortgages" };
 export const CHANNEL_LABELS = { website: "Website", social: "Social media", email: "Email" };
 

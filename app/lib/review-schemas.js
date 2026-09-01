@@ -1,10 +1,7 @@
 import { z } from "zod";
+import { FCA_PRODUCT_IDS } from "../shared/fca-product-registry.js";
 
-export const productSchema = z.enum([
-  "investments",
-  "consumer_credit",
-  "mortgages",
-]);
+export const productSchema = z.enum(FCA_PRODUCT_IDS);
 
 export const channelSchema = z.enum(["website", "social", "email"]);
 
@@ -20,7 +17,7 @@ export const extractionSchema = z.object({
   contextAssessment: z.object({
     status: z.enum(["consistent", "possible_mismatch"]),
     observedSignals: z.array(z.string()).max(8),
-    candidateProducts: z.array(productSchema).max(3),
+    candidateProducts: z.array(productSchema).max(8),
     explanation: z.string(),
   }),
   claims: z

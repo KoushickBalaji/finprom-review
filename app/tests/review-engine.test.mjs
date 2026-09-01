@@ -1,6 +1,45 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { runReview } from "../lib/review-engine.js";
+
+// The deterministic fixture tests recommendation logic independently of the
+// large, local-only Handbook index and paid model calls.
+process.env.FCA_RETRIEVAL_MODE = "pack";
+const { buildRetrievalQueries, deriveRecommendation, runReview } = await import("../lib/review-engine.js");
+
+test("claim-level retrieval adds deterministic regulatory vocabulary without adding citations", () => {
+  const queries = buildRetrievalQueries({
+    promotion: "Apply online for £500 cashback.",
+    product: "consumer_credit",
+    extraction: {
+      claims: [{
+        id: "claim-1",
+        exactText: "£500 cashback",
+        kind: "incentive",
+        assertion: "Applicants may receive cashback.",
+        searchConcepts: ["cashback eligibility"],
+      }],
+      possibleOmissionTopics: [],
+    },
+  });
+  assert.match(queries[0].query, /incentive to apply for credit/i);
+  assert.match(queries[0].query, /representative APR/i);
+  assert.doesNotMatch(queries[0].query, /CONC\s+3/i);
+});
+
+test("retrieval hypotheses cannot overrule an all-meets grounded evaluation", () => {
+  const extraction = {
+    claims: [{ id: "claim-1", exactText: "Clear scoped statement" }],
+    possibleOmissionTopics: ["A speculative topic raised for retrieval"],
+  };
+  const evaluation = {
+    reviewStatus: "complete",
+    findings: [{
+      promoQuote: "Clear scoped statement",
+      result: "meets",
+    }],
+  };
+  assert.equal(deriveRecommendation(evaluation, extraction), "recommended");
+});
 
 const cases = [
   ["block", "Earn a guaranteed 12% annual return with our investment bond. Your capital is completely secure.", "investments", "website"],
@@ -29,3 +68,4 @@ for (const [expected, promotion, product, channel] of cases) {
     }
   });
 }
+

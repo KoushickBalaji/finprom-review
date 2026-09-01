@@ -59,3 +59,4 @@ const percentile = (p) => Math.round(latencies[Math.ceil(p * latencies.length) -
 console.log(`\n${passed}/${cases.length} hosted evaluations passed; p50 ${percentile(0.5)} ms, p95 ${percentile(0.95)} ms.`);
 
 if (passed !== cases.length) process.exitCode = 1;
+
