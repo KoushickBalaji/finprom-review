@@ -743,7 +743,7 @@ function assemble(input, extraction, evidence, evaluation, timings, route, snaps
         AI_PROVIDER_MODE === "vercel-ai-gateway"
           ? "OpenAI via Vercel AI Gateway"
           : AI_PROVIDER_MODE === "openai-direct"
-            ? "OpenAI API (direct local development)"
+            ? "OpenAI API (direct)"
             : "Local development fixture",
       providerMode: AI_PROVIDER_MODE,
       models: {
