@@ -38,10 +38,10 @@ const GATEWAY_AUTH_AVAILABLE = Boolean(
 );
 const DIRECT_OPENAI_AUTH_AVAILABLE = Boolean(process.env.OPENAI_API_KEY);
 const REAL_AI_AVAILABLE = GATEWAY_AUTH_AVAILABLE || DIRECT_OPENAI_AUTH_AVAILABLE;
-const AI_PROVIDER_MODE = GATEWAY_AUTH_AVAILABLE
-  ? "vercel-ai-gateway"
-  : DIRECT_OPENAI_AUTH_AVAILABLE
-    ? "openai-direct"
+const AI_PROVIDER_MODE = DIRECT_OPENAI_AUTH_AVAILABLE
+  ? "openai-direct"
+  : GATEWAY_AUTH_AVAILABLE
+    ? "vercel-ai-gateway"
     : "development-fixture";
 const directOpenAI = DIRECT_OPENAI_AUTH_AVAILABLE
   ? createOpenAI({ apiKey: process.env.OPENAI_API_KEY })
@@ -57,8 +57,8 @@ function normalizeOpenAIModelId(modelId) {
 }
 
 function languageModel(modelId) {
-  if (GATEWAY_AUTH_AVAILABLE) return normalizeGatewayModelId(modelId);
   if (directOpenAI) return directOpenAI.responses(normalizeOpenAIModelId(modelId));
+  if (GATEWAY_AUTH_AVAILABLE) return normalizeGatewayModelId(modelId);
   return null;
 }
 

@@ -41,7 +41,7 @@ npm run check
 npm run dev
 ```
 
-Vercel review calls prefer Gateway/OIDC. Local review calls use Gateway credentials when present and otherwise use the server-side `OPENAI_API_KEY` directly; the deterministic fixture remains available only when neither exists. The one-time corpus embedding command also uses `OPENAI_API_KEY`, is resumable and records model, dimensions, corpus checksums and run ID in SQLite. No secret is committed.
+Review calls prefer a server-side `OPENAI_API_KEY` when configured and otherwise use Vercel Gateway/OIDC. This lets the preview use the same OpenAI models even when Gateway billing is unavailable; the deterministic fixture remains available only when neither hosted credential exists. The one-time corpus embedding command also uses `OPENAI_API_KEY`, is resumable and records model, dimensions, corpus checksums and run ID in SQLite. No secret is committed.
 
 See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for the request path, [END_TO_END_SMOKE_TEST.md](docs/END_TO_END_SMOKE_TEST.md) for the live gate and trace contract, and [design-qa.md](design-qa.md) for the visual verification record.
 
