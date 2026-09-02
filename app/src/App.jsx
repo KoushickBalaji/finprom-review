@@ -110,19 +110,47 @@ function FieldStatus({ label, value }) {
 function Finding({ finding, index, onToast }) {
   const severity = finding.result === "block" ? "High risk" : finding.result === "revise" ? "Change needed" : "Requirement met";
   const tone = finding.result === "block" ? "danger" : finding.result === "revise" ? "warning" : "success";
+  const citationCount = finding.citations?.length ?? 0;
   return <section className="finding-section">
     <div className="finding-title-row"><h3>{index + 1}. Claim-level finding</h3><StatusPill tone={tone}>{severity}</StatusPill><div className="reviewer-state">Reviewer decision: <StatusPill tone="info">Pending</StatusPill></div></div>
-    <dl className="finding-grid">
-      <dt>Assessed wording</dt><dd className={tone === "success" ? "positive-copy" : "problem-copy"}>{finding.promoQuote}</dd>
-      <dt>Finding type</dt><dd className="capitalize">{finding.issueType}</dd>
-      <dt>FCA evidence</dt><dd className="citations">{finding.citations.map((citation) => <div className="citation" key={citation.id}>
-        <a href={citation.url} target="_blank" rel="noreferrer">{citation.id} · {citation.heading} <ArrowSquareOut size={15} /></a><blockquote>“{citation.quote}”</blockquote>
-      </div>)}</dd>
-      <dt>Reviewer assessment</dt><dd>{finding.explanation}</dd>
-      <dt>Checks</dt><dd className="status-row"><FieldStatus label="Consumer-facing disclosure" value={finding.disclosureStatus} /><FieldStatus label="Substantiation" value={finding.substantiationStatus} /></dd>
-      {finding.requiredAction && <><dt>Required action</dt><dd>{finding.requiredAction}</dd></>}
-      {finding.suggestedRewrite && <><dt>Rewrite guidance</dt><dd><div className="rewrite-grid"><div><span>Before · submitted copy</span><p>{finding.promoQuote}</p></div><div><span>After · suggested wording</span><p>{finding.suggestedRewrite}</p></div></div><button className="copy-button" onClick={() => { navigator.clipboard?.writeText(finding.suggestedRewrite); onToast("Suggested wording copied."); }}><Copy size={15} /> Copy suggestion</button></dd></>}
-    </dl>
+    <div className="finding-content">
+      <div className="finding-primary">
+        <div className={`assessment-panel ${tone}`}>
+          <span className="section-label">Reviewer assessment</span>
+          <p>{finding.explanation}</p>
+        </div>
+        {finding.requiredAction && <div className="required-action">
+          <span className="section-label">Required action</span>
+          <p>{finding.requiredAction}</p>
+        </div>}
+        {finding.suggestedRewrite && <div className="rewrite-section">
+          <span className="section-label">Rewrite guidance</span>
+          <div className="rewrite-grid"><div><span>Before · submitted copy</span><p>{finding.promoQuote}</p></div><div><span>After · suggested wording</span><p>{finding.suggestedRewrite}</p></div></div>
+          <button className="copy-button" onClick={() => { navigator.clipboard?.writeText(finding.suggestedRewrite); onToast("Suggested wording copied."); }}><Copy size={15} /> Copy suggestion</button>
+        </div>}
+      </div>
+      <aside className="finding-meta" aria-label="Claim details">
+        <span className="section-label">Claim details</span>
+        <dl>
+          <div><dt>Assessed wording</dt><dd className={tone === "success" ? "positive-copy" : "problem-copy"}>{finding.promoQuote}</dd></div>
+          <div><dt>Finding type</dt><dd className="capitalize">{finding.issueType}</dd></div>
+        </dl>
+        <div className="checks-compact">
+          <FieldStatus label="Consumer-facing disclosure" value={finding.disclosureStatus} />
+          <FieldStatus label="Substantiation" value={finding.substantiationStatus} />
+        </div>
+      </aside>
+    </div>
+    <section className="regulatory-basis" aria-labelledby={`regulatory-basis-${finding.id}`}>
+      <div className="regulatory-heading">
+        <div><span className="section-label" id={`regulatory-basis-${finding.id}`}>Regulatory basis</span><p>Applicable FCA provisions supporting this assessment.</p></div>
+        <StatusPill>{citationCount} {citationCount === 1 ? "source" : "sources"}</StatusPill>
+      </div>
+      <div className="citations">{finding.citations.map((citation) => <div className="citation" key={citation.id}>
+        <a href={citation.url} target="_blank" rel="noreferrer">{citation.id} · {citation.heading} <ArrowSquareOut size={15} /></a>
+        <details className="source-excerpt"><summary>View source text</summary><blockquote>“{citation.quote}”</blockquote></details>
+      </div>)}</div>
+    </section>
   </section>;
 }
 
