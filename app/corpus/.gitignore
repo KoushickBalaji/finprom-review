@@ -1,0 +1,10 @@
+raw/
+snapshots/
+index/
+chunks/
+evals/
+deploy/
+!raw/.gitkeep
+!snapshots/.gitkeep
+!index/.gitkeep
+

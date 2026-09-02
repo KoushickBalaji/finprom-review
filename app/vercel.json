@@ -2,9 +2,11 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/client",
   "functions": {
-    "api/review.js": { "maxDuration": 30 }
+    "api/review.js": { "maxDuration": 120, "memory": 1024 }
   },
+  "regions": ["bom1"],
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
+
