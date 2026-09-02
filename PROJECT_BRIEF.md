@@ -1,7 +1,7 @@
 # Zango FinProm AI Workflow — Working Project Brief
 
-**Status:** Working prototype plus complete local hybrid FCA index; hosted private-index deployment pending
-**Last updated:** 1 September 2026
+**Status:** Production demo deployed and end-to-end verified against the private full-Handbook index
+**Last updated:** 2 September 2026
 **Purpose of this document:** This is the source of truth for the project. It records agreed decisions, current assumptions and unresolved questions. It should be updated as decisions are made, before implementation changes begin.
 
 ## 1. Project goal
@@ -57,7 +57,17 @@ It does not autonomously approve a promotion or replace reviewer accountability.
 - Comprehensive production integrations.
 - Institutional-only, prudential and market-infrastructure domains that are not meaningful marketer product choices.
 
-All 34 promotion-relevant product and service families in the versioned registry are selectable and routable. The four prepared tickets and 12-case evaluation baseline still provide the deepest worked examples. The local application now has full-Handbook lexical retrieval; hosted full-corpus retrieval remains pending a private index deployment.
+All 34 promotion-relevant product and service families in the versioned registry are selectable and routable. The four prepared tickets and 12-case evaluation baseline still provide the deepest worked examples. Both local development and the hosted demo now use a private, versioned retrieval index derived from the complete normalized, chunked and embedded Handbook snapshot.
+
+### Current deployed state
+
+- **Production URL:** <https://zango-finprom-pitch.vercel.app/>
+- **Source revision:** GitHub `main` at merge commit `25abe4c3133306ba061d94335e0d9465b5c4a921`.
+- **Runtime:** Vite frontend plus a Vercel Function in `bom1`; the review function fails closed if model authentication, the private index or grounding validation is unavailable.
+- **Regulatory retrieval:** the 35,628 substantive Handbook chunks are represented in a 12-part private Vercel Blob deployment artifact containing the lexical index and scalar-quantized embeddings. A cold function reconstructs and manifest-validates the SQLite derivative in temporary storage; warm instances reuse it.
+- **Model access:** server-side direct OpenAI authentication is configured separately for Production and Preview. The API key is never exposed to the browser or committed to Git.
+- **Verified production path:** a newly submitted guaranteed-return investment promotion completed the real workflow, returned `Block`, produced two claim-level findings grounded in `COBS 4.2.1 R` and `COBS 4.2.5 G`, and left the reviewer decision as `Pending`. The reviewer-first layout, collapsed source excerpts and scrolling behaviour were also verified with no browser-console or deployment-runtime errors.
+- **Remaining live evidence capture:** run and record one `Revise` and one `Recommended` production case before using all three outcomes as deck evidence. The local end-to-end smoke gate has already passed the three agreed workflow shapes.
 
 ## 4. Submission input
 
@@ -270,12 +280,12 @@ The intended stages are:
 The working prototype uses two constrained model calls and a scoped retrieval step:
 
 1. Application code validates the ticket context and builds a versioned applicability scope: one product lane, targeted cross-cutting lanes and a bounded cross-reference plan.
-2. `openai/gpt-5.6-luna-fast` extracts claims, disclosures, omissions and context signals into a validated schema.
+2. `openai/gpt-5.6-luna` extracts claims, disclosures, omissions and context signals into a validated schema.
 3. Lexical ranking and `text-embedding-3-small` semantic similarity run over the same permitted candidates and are fused to produce the evidence pack.
-4. `openai/gpt-5.6-terra-fast` evaluates the claims only against that evidence pack and returns a second validated schema.
+4. `openai/gpt-5.6-terra` evaluates the claims only against that evidence pack and returns a second validated schema.
 5. Application code—not the model—checks quoted promotional text, resolves FCA rule identifiers to stored exact quotations, derives the overall recommendation and creates the audit record.
 
-The model identifiers are configuration rather than permanent product choices. The deployment uses Vercel AI Gateway and its deployment identity; a local deterministic fixture exists only for UI development and automated tests when hosted model credentials are unavailable.
+The model identifiers are configuration rather than permanent product choices. The current hosted demo uses a server-side `OPENAI_API_KEY` and the direct OpenAI provider because Vercel AI Gateway billing was not provisioned for this project. The provider boundary still supports Gateway/OIDC later without changing the review contract. A deterministic fixture exists only for UI development and automated tests; hosted execution fails closed when real model access is unavailable.
 
 ## 8. Auditability and safeguards
 
@@ -365,7 +375,7 @@ Visual prominence is outside the text-only prototype's verification capability. 
 
 Use a **hybrid retrieval pipeline over a versioned private copy of the complete current FCA Handbook**. Retain the whole normalized/chunked corpus, but use ticket applicability metadata to determine the permitted regulatory scope before ranking. The product selects a principal sourcebook without excluding targeted generally applicable material or legitimate cross-sourcebook references.
 
-The full snapshot should not be bundled into a Vercel Function or shipped to the browser. The intended production layout is: authenticated FCA API ingestion, immutable raw snapshots in private object storage, and a co-located Postgres lexical/vector index queried by a lean London-region review function. This keeps the review path fast while preserving versioning and auditability.
+The full snapshot should not be bundled into a Vercel Function or shipped to the browser. The work-sample deployment therefore stores a scalar-quantized SQLite derivative as 12 private Vercel Blob parts and reconstructs it in temporary function storage. The longer-term production layout remains authenticated FCA API ingestion, immutable raw snapshots in private object storage, and a co-located managed lexical/vector index queried by a lean review function. This preserves the demonstrated metadata and evidence contracts while improving cold-start latency, concurrency and refresh operations.
 
 This is preferable to the main alternatives:
 
@@ -388,7 +398,7 @@ This is preferable to the main alternatives:
 
 The live review workflow should query the private indexed snapshot, not depend on the FCA API responding during a review. Refreshing the snapshot is a separate ingestion operation.
 
-The selected eight-provision pack now exists only as a deterministic fallback. The complete authenticated API snapshot is normalized, chunked, lexically indexed and embedded locally. Hosted private-index deployment is tracked separately so corpus size, update cadence and runtime storage are handled deliberately.
+The selected eight-provision pack now exists only as a deterministic local-test fallback. The complete authenticated API snapshot is normalized, chunked, lexically indexed and embedded locally. The hosted demo uses the complete corpus through the private 12-part scalar-int8 Blob artifact and forces full-corpus mode; it fails closed instead of falling back to the selected pack.
 
 ### Runtime retrieval flow
 
@@ -469,14 +479,23 @@ The history and reference-library tabs may remain inactive in the prototype. The
 
 ## 12. Open decisions and external dependencies
 
-The following items remain after the working prototype:
+The following items remain after the deployed working prototype:
 
-1. Decide which derived full-corpus retrieval artifacts belong in the hosted demo and which remain in private storage, accounting for bundle size, update cadence and source attribution.
-2. Select the production data services for immutable snapshots and the co-located full-text/vector index.
-3. Tune the three missing version 2 evidence groups if useful for the demo. Any expansion into an expert-labelled benchmark or production-quality retrieval claim requires an FCA financial-promotions SME and is outside the current project scope.
-4. Decide what the presentation deck should demonstrate beyond the working prototype.
+1. Rotate the OpenAI API key that appeared in a browser diagnostic during deployment setup, then replace the local, Preview and Production secret values before sharing the demo widely.
+2. Run and record one `Revise` and one `Recommended` case in Production so the deck can use verified examples for all three advisory outcomes.
+3. Select the longer-term production data services for immutable snapshots and the co-located full-text/vector index; private Vercel Blob plus reconstructed SQLite is an explicit work-sample deployment choice.
+4. Tune the three missing version 2 evidence groups only if useful for the demo. Any expansion into an expert-labelled benchmark or production-quality retrieval claim requires an FCA financial-promotions SME and is outside the current project scope.
+5. Build the presentation deck around the reviewer problem, the working workflow, grounded evidence, evaluation results, production roadmap and the candidate's contribution to Zango.
 
 ## 13. Decision log
+
+### 2 September 2026
+
+- Merged the validated preview implementation and reviewer-first findings layout into GitHub `main` at `25abe4c3133306ba061d94335e0d9465b5c4a921`, then deployed it to <https://zango-finprom-pitch.vercel.app/> in Vercel's `bom1` region.
+- Promoted the compliance reviewer's reasoning above the source material: reviewer assessment, required action and rewrite guidance now lead each finding; assessed wording, finding type and checks sit in a compact side panel; exact FCA excerpts are collapsed under the regulatory basis. Added real scroll containment for the queue and workspace.
+- Configured a Production-only `OPENAI_API_KEY` alongside the existing branch-scoped Preview secret and redeployed the same source revision. Hosted execution continues to use the private full-Handbook artifact and fails closed if either model authentication or the corpus is unavailable.
+- Completed a real production smoke review for “Earn a guaranteed 10% annual return with our investment bond. Your capital is completely secure.” The system returned `Block`, produced separate grounded findings for the return and capital-security claims, cited `COBS 4.2.1 R` and `COBS 4.2.5 G`, and kept the reviewer decision `Pending`. No browser-console or deployment-runtime errors were observed on the verified deployment.
+- Retained latency as a transparent prototype limitation and roadmap item rather than hiding it. The next evidence-capture step is one live `Revise` case and one live `Recommended` case before deck authoring uses all three outcomes.
 
 ### 1 September 2026
 
