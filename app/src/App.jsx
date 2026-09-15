@@ -166,7 +166,7 @@ function AuditTrace({ result }) {
         <div><h4>Retrieved provisions</h4>{(audit.retrievedEvidence ?? []).map((rule) => <p key={rule.id}>{rule.id} <span>lex {rule.lexicalRank} · sem {rule.semanticRank ?? "n/a"}</span></p>)}</div>
         <div><h4>Validation</h4><p><CheckCircle size={16} weight="fill" /> Promotion quotes verified</p><p><CheckCircle size={16} weight="fill" /> Rule IDs retrieved</p><p><CheckCircle size={16} weight="fill" /> Source quotes application-supplied</p><p><CheckCircle size={16} weight="fill" /> Structured result validated</p></div>
       </div>
-      <div className="corpus-notice"><Database size={18} /> {audit.snapshot.corpusNotice}</div>
+      {audit.snapshot.corpusNotice && <div className="corpus-notice"><Database size={18} /> {audit.snapshot.corpusNotice}</div>}
     </div>}
   </section>;
 }

@@ -9,8 +9,6 @@ export const SNAPSHOT = {
   asOf: "30 August 2026",
   scope: "Selected FCA provisions for the three stored evaluation journeys",
   corpusMode: "demo-pack",
-  corpusNotice:
-    "The live demo still uses a limited regulatory pack. The authenticated full Handbook has been downloaded, normalized and chunked locally; its derived retrieval indexes are the next corpus step.",
 };
 
 export { PRODUCT_SOURCEBOOKS };
