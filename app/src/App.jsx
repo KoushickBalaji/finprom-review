@@ -72,7 +72,7 @@ function TopBar({ onInfo }) {
 function QueuePanel({ tickets, selectedId, onSelect, onNew, sortNewest, setSortNewest, filter, setFilter }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   return <aside className="queue-panel">
-    <div className="queue-heading"><h1>Review queue</h1><button className="primary-button" onClick={onNew}><Plus size={18} weight="bold" /> New promotion</button></div>
+    <div className="queue-heading"><h1>Review queue</h1><button className="primary-button new-promotion-button" onClick={onNew}><Plus size={18} weight="bold" /> New promotion</button></div>
     <div className="queue-tools">
       <button className="tool-button" onClick={() => setSortNewest((value) => !value)}>Sort: {sortNewest ? "Newest first" : "Oldest first"} <CaretDown size={15} /></button>
       <div className="filter-wrap">
