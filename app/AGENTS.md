@@ -13,7 +13,7 @@ Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts
 - Match `../design/references/finprom-review-queue-v1.png`: dark header, queue/detail split, restrained compliance styling and sparse semantic colour.
 - Keep `Review queue` live. `Review history` and `Reference library` communicate the wider product but remain preview-only.
 - The four prepared cases are existing queue tickets. `New promotion` creates an arbitrary free-text review.
-- Keep `New promotion` visually prominent with a restrained pulsing focus ring, while respecting reduced-motion preferences.
+- Keep `New promotion` visually prominent with a golden one-second pulsing focus ring, while respecting reduced-motion preferences.
 - Advisory outcomes are `Recommended for approval`, `Revise` and `Block`; every result retains `Reviewer decision: Pending` and there is no AI approval action.
 - Use OpenAI through Vercel AI Gateway for extraction/evaluation. Corpus and query embeddings use the OpenAI Embeddings API with the same recorded model and dimensions. Deterministic local behaviour is a development fixture, never presented as the production AI path.
 - Local end-to-end checks may use the configured OpenAI key directly when Gateway/OIDC is unavailable. The live smoke gate must refuse fixture mode and the small pack, retain the full trace, keep the final evidence pack bounded, and never turn an unavailable model into a recommendation.
